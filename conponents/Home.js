@@ -1,19 +1,23 @@
 import React, { useState } from 'react';
 import {  Dimensions, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { connect } from 'react-redux';
+import { actionCreators, addTodo } from '../store';
 const { width: WIDTH, height: HEIGHT } = Dimensions.get("window");
-function Home({toDos}){
+function Home({ toDos, addTodo }) {
+    
     const [inputText, setInputText] = useState("");
 
     const onChangeText = (text) => {
         setInputText(text);
     }
     const onPressButton = () => {
+        addTodo(inputText);
         setInputText("");
     }
-    const renderItem = ({text}) => {
+    const renderItem = ({item}) => {
+         console.log(item);
         return (
-            <View><Text>{text}</Text></View>
+            <View><Text>{item.text}</Text></View>
         )
     }
     return (
@@ -26,8 +30,9 @@ function Home({toDos}){
                 </TouchableOpacity>
             </View>
             <FlatList
-                data={JSON.stringify(toDos)}
+                data={toDos}
                 renderItem={renderItem}
+                keyExtractor={toDos => toDos.id.toString()}
             />
         </View>
     );
@@ -64,7 +69,15 @@ const styles = StyleSheet.create({
     }
 
 });
-function mapStateToProps(state, ownProps) {   
-    return { toDos: state };
+function mapStateToProps(state) {   
+    return {
+        toDos: state,
+    };
 }
-export default connect(mapStateToProps)(Home);
+function mapDispatchToProps(dispatch, ownProps) {
+    return {
+        addTodo: text => dispatch(actionCreators.addTodo(text)),
+        deleteTodo : id =>dispatch(actionCreators.deleteTodo(id))  
+    };
+}
+export default connect(mapStateToProps,mapDispatchToProps)(Home);
